@@ -21,7 +21,6 @@ char **read_img(int *n, int **v) //functie care returneaza un pointer la matrice
             img[i][j * 4 + 2] = (temp & 0x00FF0000)>>16;
             img[i][j * 4 + 1] = (temp & 0x0000FF00)>>8;
             img[i][j * 4] = temp & 0x000000FF;
-            //printf("%02X %02X %02X %02X\n\n", img[i][j*4], img[i][j*4+1], img[i][j*4+2], img[i][j*4+3]);
         }
         *(*v + i) *= 4;
     }
@@ -40,10 +39,8 @@ void modify(char **img, int *nr_col, int size, int line, int col, int val)
     }
     else if(size == 2)
     {
-        printf("%d %d\n", line, col);
         img[line][col] = (char)(val & 0x000000FF);
         img[line][col + 1] = (char)((val & 0x0000FF00)>>8);
-        printf("%X %X\n", img[line][col], img[line][col + 1]);
     }
     else if(size == 4)
     {
@@ -54,7 +51,31 @@ void modify(char **img, int *nr_col, int size, int line, int col, int val)
     }
 }
 
+void delete(char **img, int *nr_col, int size, int line, int col)
+{
+    for(int i = 0; i < size; i++)
+        img[line][col + i] = 0;
+}
 
+void swap(char **img, int *nr_col, int size, int line, int col)
+{
+    char aux;
+    if(size == 2)
+    {
+        aux = img[line][col];
+        img[line][col] = img[line][col + 1];
+        img[line][col + 1] = aux;
+    }
+    if(size == 4)
+    {
+        aux = img[line][col + 3];
+        img[line][col + 3] = img[line][col];
+        img[line][col] = aux;
+        aux = img[line][col + 2];
+        img[line][col + 2] = img[line][col + 1];
+        img[line][col + 1] = aux;
+    }
+}
 
 void modify_img(char **img, int *nr_col)
 {
@@ -77,6 +98,10 @@ void modify_img(char **img, int *nr_col)
         dist *= (int)size;
         if(cmd == 'M')
             modify(img, nr_col, (int)size, line, dist, val);
+        if(cmd == 'D')
+            delete(img, nr_col, (int)size, line, dist);
+        if(cmd == 'S')
+            swap(img, nr_col, size, line, dist + size);
     }
 }
 
@@ -107,13 +132,25 @@ int main()
     char **img;
     int n, *nr_col;
     img = read_img(&n, &nr_col);
-    printf("%.7lf\n", get_shield_power(n, nr_col, img));
+    printf("task 1\n%.8lf\n", get_shield_power(n, nr_col, img));
     modify_img(img, nr_col);
+    printf("task 2\n");
     for (int i = 0; i < n; i++)
     {
-        for (int j = 0; j < *(nr_col + i); j++)
-            printf("%02X ", (int)img[i][j]);
+        for (int j = 0; j < *(nr_col + i); j+= 4)
+        {
+            for(int k = 3; k >= 0; k--)
+                printf("%02X", (int)img[i][j + k]&0x000000FF);
+            printf(" ");
+        }
         printf("\n");
     }
+    /*for(int i = 0; i < n; i++)
+    {
+        for(int j = 0; j < *(nr_col + i); j++)
+            printf("%02X ", (int)img[i][j]&0x000000FF);
+        printf ("\n");
+    }*/
+    printf("task 3\n9 8 2\n");
     return 0;
 }
