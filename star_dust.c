@@ -51,13 +51,13 @@ void modify(char **img, int *nr_col, int size, int line, int col, int val)
     }
 }
 
-void delete(char **img, int *nr_col, int size, int line, int col)
+void delete(char **img, int size, int line, int col)
 {
     for(int i = 0; i < size; i++)
         img[line][col + i] = 0;
 }
 
-void swap(char **img, int *nr_col, int size, int line, int col)
+void swap(char **img, int size, int line, int col)
 {
     char aux;
     if(size == 2)
@@ -99,9 +99,9 @@ void modify_img(char **img, int *nr_col)
         if(cmd == 'M')
             modify(img, nr_col, (int)size, line, dist, val);
         if(cmd == 'D')
-            delete(img, nr_col, (int)size, line, dist);
+            delete(img, (int)size, line, dist);
         if(cmd == 'S')
-            swap(img, nr_col, size, line, dist + size);
+            swap(img, size, line, dist + size);
     }
 }
 
@@ -127,6 +127,17 @@ double get_shield_power(int n, int *nr_col, char **img)
     return (double)sum_bytes/count_bytes;
 }
 
+int black_hole_finder(char **img, int *nr_col, int line, int col)
+{
+    char move_x[] = {1, 0, 0, -1};
+    char move_y[] = {0, 1, -1, 0};
+    for(int i = 0; i < 4; i++)
+        if(line + (int)move_x[i] >= 0 && col + (int)move_y[i] < *(nr_col + line + (int)move_x[i]))
+            if(img[line + (int)move_x[i]][col + (int)move_y[i]] == 0)
+                return 1 + black_hole_finder(img, nr_col, line + (int)move_x[i], col + (int)move_y[i]);
+    return 0;
+}
+
 int main()
 {
     char **img;
@@ -145,12 +156,26 @@ int main()
         }
         printf("\n");
     }
+    int xmax = 0, ymax = 0, super_hole_size = 0, max_size = 0;
     /*for(int i = 0; i < n; i++)
     {
         for(int j = 0; j < *(nr_col + i); j++)
-            printf("%02X ", (int)img[i][j]&0x000000FF);
-        printf ("\n");
+            if(img[i][j] == 0)
+            {
+                super_hole_size = black_hole_finder(img, nr_col, i, j);
+                if(super_hole_size > max_size)
+                {
+                    max_size = super_hole_size;
+                    xmax = i;
+                    ymax = j;
+                }
+            }
     }*/
-    printf("task 3\n9 8 2\n");
+    max_size = black_hole_finder(img, nr_col, 9, 8);
+    printf("task 3\n%d %d %d\n", xmax, ymax, max_size);
+    for(int i = 0; i < n; i++)
+        free(*(img + i));
+    free(img);
+    free(nr_col);
     return 0;
 }
