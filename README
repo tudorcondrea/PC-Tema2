@@ -1,1 +1,19 @@
-E
+Task 1:
+-Folosesc o matrice de caractere alocata dinamic cu numar variabil de linii retinut intr-un vector separat
+-Prin utilizarea caracterelor pot folosi cea mai mica unitate (un byte), practic "disec" imaginea
+-Parcurg linia de sus, dupa linia de jos, dupa coloanele de pe stanga si dreapta, incepand cu linia 1 si terminand cu n-1
+-Adun fiecare element din parcurgere, contorizez cate elemente sunt si returnez raportul
+Task 2:
+-Am cate o functie separata care se ocupa de fiecare operatie
+-"Modify" realoca memorie necesara pentru a putea modifica blocul de memorie 
+-Preia cifrele de care are nevoie in functie de tipul de date si le memeoreaza in locul din imagine dat, byte cu byte
+-"Delete" pune 0 pe o lungime de 1, 2 sau 4 bytes in functie de tipul de date in blocul de memorie indicat
+-"Swap" inlocuieste pe o lungime de 2 sau 4 capetele de la blocul de memorie indicat
+Task 3:
+-Parcurg matricea modificata si caut zerouri de la care pot porni cautari de gauri negre supermasive
+-Folosesc o functie recursiva are porneste de la un set de coordonate
+-Se uita in dreapta, jos, stanga si sus sa vada daca poate sa se mute acolo, sau daca da pe afara
+-Daca e inca in interiorul matricei, verifica daca e 0
+-Daca e 0 se muta acolo si repeta procesul
+-Variabila s retine pentru fiecare byte din imagine cate zerouri se afla in extinderea ei
+-Astfel, in apelul functiei initial se returneaza numarul zerourilor din gaura supermasiva

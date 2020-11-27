@@ -8,12 +8,16 @@ char **read_img(int *n, int **v)
 	int i, j;
 	unsigned int temp;
 	scanf("%d", n);
+	//aloca mememorie dinamic pentru numarul de coloane
+	//si pentru imagine destula memorie pentru inceputul liniilor
 	*v = (int *)malloc(*n * sizeof(int) * 4);
 	img = (char **)malloc(*n * sizeof(char *));
 	for (i = 0; i < *n; i++) {
 		scanf("%d", *v + i);
 		img[i] = (char *)malloc(*(*v + i) * sizeof(char) * 4);
 		for (j = 0; j < *(*v + i); j++) {
+			//temp retine variabila din care extragem cifrele necesare
+			//fiecarui byte
 			scanf("%X", &temp);
 			img[i][j * 4 + 3] = (temp & 0xFF000000) >> 24;
 			img[i][j * 4 + 2] = (temp & 0x00FF0000) >> 16;
@@ -28,6 +32,8 @@ char **read_img(int *n, int **v)
 void modify(char ***img, int *nr_col, int *n, int size, int line, int col,
 			int val)
 {
+	//primele 2 if-uri sunt pentru realocare in caz ca nu incape
+	//si de asemenea modifica si numarul maxim de linii/coloane
 	if (line > *n) {
 		*img = (char **)realloc(*img, line * sizeof(char **));
 		for (int i = *n; i < line; i++)
@@ -95,6 +101,8 @@ void modify_img(char **img, int *nr_col, int *n)
 			size = 4;
 		dist--;	 // datele de intrare dau blocurile incepand cu 1 iar coloanele
 				 // mele incep de la 0
+		//in mod obisnuit sunt IndexBlocuri coloane de acel tip de date,
+		//deci la trecere cu char sunt sizeof(DataType)*IndexBlocuri coloane
 		dist *= (int)size;
 		if (cmd == 'M')
 			modify(&img, nr_col, n, (int)size, line, dist, val);
@@ -107,6 +115,8 @@ void modify_img(char **img, int *nr_col, int *n)
 
 double get_shield_power(int n, int *nr_col, char **img)
 {
+	//iau prima linie, dupa ultima linie
+	//dupa coloanele de pe margine
 	int i, j, count_bytes = 0;
 	long long sum_bytes = 0;
 	for (i = 1; i < n - 1; i++) {
@@ -126,9 +136,14 @@ double get_shield_power(int n, int *nr_col, char **img)
 
 int black_hole_finder(char **img, int *nr_col, int n, int line, int col)
 {
+	//vectorii de miscare prin adunare modifica coordonatele la care se afla
 	char move_x[] = {1, 0, 0, -1};
 	char move_y[] = {0, 1, -1, 0};
+	//pentru a nu da loop infinit, setam cu -1 in urma
 	img[line][col] = -1;
+	//s va retine pentru fiecare img[i][j] cate patrate de 0 se afla
+	//in extinderea lui; prin return aduna progresiv 1 pentru
+	//fiecare 0 aflat intr-un spatiu
 	int s = 1;
 	for (int i = 0; i < 4; i++)
 		if (line + (int)move_x[i] >= 0 && line + (int)move_x[i] < n &&
@@ -142,7 +157,9 @@ int black_hole_finder(char **img, int *nr_col, int n, int line, int col)
 
 int main(void)
 {
+	//imaginea este retinuta byte cu byte intr-o matrice de caractere
 	char **img;
+	//fiecare linie are un numar variabil de coloane
 	int n, *nr_col;
 	img = read_img(&n, &nr_col);
 	printf("task 1\n%.8lf\n", get_shield_power(n, nr_col, img));
@@ -157,7 +174,7 @@ int main(void)
 		printf("\n");
 	}
 	int xmax = 0, ymax = 0, super_hole_size = 0, max_size = 0;
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
 		for (int j = 0; j < *(nr_col + i); j++)
 			if (img[i][j] == 0) {
 				super_hole_size = black_hole_finder(img, nr_col, n, i, j);
@@ -167,7 +184,6 @@ int main(void)
 					ymax = j;
 				}
 			}
-	}
 	printf("task 3\n%d %d %d\n", xmax, ymax, max_size);
 	for (int i = 0; i < n; i++)
 		free(*(img + i));
